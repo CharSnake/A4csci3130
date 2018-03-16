@@ -4,25 +4,25 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class DetailViewActivity extends Activity {
+public class CreateBusinessAcitivity extends Activity {
 
+    private Button submitButton;
     private EditText numberField, nameField, addressField;
     private Spinner businessField, provinceField;
-    Business receivedPersonInfo;
     private MyApplicationData appState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail_view);
-
+        setContentView(R.layout.activity_create_business_acitivity);
+        //Get the app wide shared variables
         appState = ((MyApplicationData) getApplicationContext());
 
-        receivedPersonInfo = (Business)getIntent().getSerializableExtra("Business");
-
+        submitButton = (Button) findViewById(R.id.submitButton);
         numberField = (EditText) findViewById(R.id.bnumber);
         nameField = (EditText) findViewById(R.id.name);
         businessField = (Spinner) findViewById(R.id.pbusiness);
@@ -36,19 +36,11 @@ public class DetailViewActivity extends Activity {
                 R.array.province, android.R.layout.simple_spinner_item);
         adapterp.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         provinceField.setAdapter(adapterp);
-
-        if(receivedPersonInfo != null){
-            numberField.setText(receivedPersonInfo.number);
-            nameField.setText(receivedPersonInfo.name);
-            addressField.setText(receivedPersonInfo.address);
-            businessField.setSelection(adapterb.getPosition(receivedPersonInfo.business));
-            provinceField.setSelection(adapterp.getPosition(receivedPersonInfo.province));
-        }
     }
 
-    public void updateBusiness(View v){
-        //Get previous businessID
-        String businessID = receivedPersonInfo.uid;
+    public void submitInfoButton(View v) {
+        //each entry needs a unique ID
+        String businessID = appState.firebaseReference.push().getKey();
         String number = numberField.getText().toString();
         String name = nameField.getText().toString();
         String business = businessField.getSelectedItem().toString();
@@ -59,13 +51,6 @@ public class DetailViewActivity extends Activity {
         appState.firebaseReference.child(businessID).setValue(person);
 
         finish();
-    }
 
-    public void eraseBusiness(View v)
-    {
-        String businessID = receivedPersonInfo.uid;
-        appState.firebaseReference.child(businessID).setValue(null);
-
-        finish();
     }
 }
